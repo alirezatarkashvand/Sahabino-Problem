@@ -14,15 +14,15 @@ public class LogFileReader {
     }
 
     public void run() throws IOException {
-        while(true) {
-            try {
+        try {
+            while(true) {
                 read();
                 watch();
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                watchService.close();
             }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            watchService.close();
         }
     }
 
@@ -34,6 +34,7 @@ public class LogFileReader {
 
     private List<Path> readFilePaths() throws IOException {
         return Files.list(logFolderPath)
+                    .filter(path -> path.toString().endsWith(".log"))
                     .collect(Collectors.toList());
     }
 
@@ -48,6 +49,7 @@ public class LogFileReader {
 
     private void read() throws IOException {
         List<Path> paths = readFilePaths();
+        System.out.println(paths);
         for(Path p: paths) {
             String fileName = getFileName(p);
             String componentName = splitComponentName(fileName);
