@@ -14,15 +14,15 @@ public class LogFileReader {
     }
 
     public void run() throws IOException {
-        try {
-            while(true) {
+        while(true) {
+            try {
                 read();
                 watch();
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                watchService.close();
             }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            watchService.close();
         }
     }
 
