@@ -2,14 +2,28 @@ import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.log4j.PropertyConfigurator;
 
-import java.util.List;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 public class KafkaClient {
 
     private static final Producer<String, String> producer;
 
+    //Init Log4j
+    static {
+        try {
+            Properties properties = new Properties();
+            properties.load(new FileInputStream("/home/alireza/Sahabino-Problem/monitoring-system/file-ingester/src/main/resources/log4j.properties"));
+            PropertyConfigurator.configure(properties);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    //Init Kafka producer
     static {
         Properties properties = new Properties();
         properties.put("bootstrap.servers", ApplicationProperties.getProperty("bootstrap.servers"));
