@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class ApplicationProperties {
-    private static Properties properties = new Properties();
+    private static final Properties properties = new Properties();
 
     static {
         try {

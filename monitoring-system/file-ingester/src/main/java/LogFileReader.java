@@ -1,35 +1,63 @@
+import org.apache.kafka.clients.producer.Callback;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LogFileReader {
-    private final WatchService watchService;
+public class LogFileReader implements Runnable{
+    private final WatchService watchService = FileSystems.getDefault().newWatchService();;
     private final Path logFolderPath;
 
+    private State state;
+
     public LogFileReader(String logFolder) throws IOException {
-        this.watchService = FileSystems.getDefault().newWatchService();
         this.logFolderPath = Paths.get(logFolder);
         this.logFolderPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+        this.state = State.RUNNING;
     }
 
-    public void run() throws IOException {
+    public void stop() {
         try {
-            while(true) {
-                read();
-                watch();
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            watchService.close();
+            this.state = State.SHUTDOWN;
+            this.watchService.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
     }
 
-    private void watch() throws InterruptedException {
-        WatchKey key = watchService.take();
-        key.pollEvents();
-        key.reset();
+    @Override
+    public void run() {
+        while(state == State.RUNNING) {
+            read();
+            watch();
+        }
+    }
+
+    private void watch() {
+        try {
+            WatchKey key = watchService.take();
+            key.pollEvents();
+            key.reset();
+        } catch (ClosedWatchServiceException e) {
+            System.out.println("System Shutdown.");
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void read()  {
+        try {
+            List<Path> paths = readFilePaths();
+            System.out.println(paths);
+            for(Path path: paths) {
+                String key = splitComponentName(getFileName(path));
+                String value = concatenate(key, Files.readAllLines(path));
+                sendToKafka(key, value, new LogFileRemover(path));
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private List<Path> readFilePaths() throws IOException {
@@ -47,15 +75,18 @@ public class LogFileReader {
         return fileName.split("-")[COMPONENT_NAME_LOCATION];
     }
 
-    private void read() throws IOException {
-        List<Path> paths = readFilePaths();
-        System.out.println(paths);
-        for(Path p: paths) {
-            String fileName = getFileName(p);
-            String componentName = splitComponentName(fileName);
-            List<String> logs = Files.readAllLines(p);
-            logs.add(componentName);
-            KafkaClient.send(componentName, componentName, new LogFileRemover(p));
-        }
+    private String concatenate(String name, List<String> lines) {
+        String specialDelimiter = "$$$";
+        StringBuilder result = new StringBuilder(name);
+
+        for(String line: lines)
+            result.append(specialDelimiter).append(line);
+
+        return result.toString();
+    }
+
+    private void sendToKafka(String key, String value, Callback callback) {
+        KafkaClient<String, String> kafkaClient = new KafkaClient<>();
+        kafkaClient.send(key, value, callback);
     }
 }

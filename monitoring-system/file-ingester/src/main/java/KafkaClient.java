@@ -8,11 +8,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public class KafkaClient {
-
-    private static final Producer<String, String> producer;
-
-    //Init Log4j
+public class KafkaClient<K, V> {
+    //Initialize Log4j
     static {
         try {
             Properties properties = new Properties();
@@ -23,8 +20,9 @@ public class KafkaClient {
         }
     }
 
-    //Init Kafka producer
-    static {
+    private final Producer<K, V> producer;
+
+    public KafkaClient(){
         Properties properties = new Properties();
         properties.put("bootstrap.servers", ApplicationProperties.getProperty("bootstrap.servers"));
         properties.put("acks", ApplicationProperties.getProperty("acks"));
@@ -32,11 +30,11 @@ public class KafkaClient {
         properties.put("linger.ms", ApplicationProperties.getProperty("linger.ms"));
         properties.put("key.serializer", ApplicationProperties.getProperty("key.serializer"));
         properties.put("value.serializer", ApplicationProperties.getProperty("value.serializer"));
-        producer = new KafkaProducer<>(properties);
+        this.producer = new KafkaProducer<>(properties);
     }
 
-    public static void send(String key, String value, Callback callback) {
-        ProducerRecord<String, String> record = new ProducerRecord<>(ApplicationProperties.getProperty("topic-name"), key, value);
+    public void send(K key, V value, Callback callback) {
+        ProducerRecord<K, V> record = new ProducerRecord<>(ApplicationProperties.getProperty("topic-name"), key, value);
         producer.send(record, callback);
     }
 }
