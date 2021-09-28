@@ -1,7 +1,7 @@
 package ir.sahab.monitoringsystem.fileingester.logfilehandler;
 
 import ir.sahab.monitoringsystem.fileingester.common.State;
-import ir.sahab.monitoringsystem.fileingester.kafkaclient.KafkaClient;
+import ir.sahab.monitoringsystem.fileingester.kafkaclient.KafkaProducerClient;
 import org.apache.kafka.clients.producer.Callback;
 
 import java.io.IOException;
@@ -26,41 +26,60 @@ public class LogFileReader implements Runnable{
             this.state = State.SHUTDOWN;
             this.watchService.close();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.err.println("IOEXCEPTION IN LOG_FILE_READER.STOP METHOD.");
         }
     }
 
     @Override
     public void run() {
-        while(state == State.RUNNING) {
-            read();
-            watch();
+        readPreExistingFiles();
+        readSubsequentFiles();
+    }
+
+    private void readPreExistingFiles() {
+        try {
+            for(Path path : readFilePaths()) {
+                String key = splitComponentName(getFileName(path));
+                String value = read(path);
+                sendToKafka(key, value, new LogFileRemover(path));
+            }
+
+        } catch (IOException e) {
+            System.err.println("IOEXCEPTION IN LOG_FILE_READER.READ_PRE_EXISTING_FILES METHOD.");
         }
     }
 
-    private void watch() {
+    private void readSubsequentFiles() {
         try {
-            WatchKey key = watchService.take();
-            key.pollEvents();
-            key.reset();
+            WatchKey watchKey;
+            while(((watchKey = watchService.take()) != null) && state==State.RUNNING) {
+                for(WatchEvent<?> event: watchKey.pollEvents()) {
+                    WatchEvent.Kind<?> kind = event.kind();
+                    if(StandardWatchEventKinds.ENTRY_CREATE.equals(kind)){
+                        String fileName = event.context().toString();
+                        if(fileName.endsWith(".log")) {
+                            Path path = Paths.get(logFolderPath.toString(), fileName);
+                            String key = splitComponentName(fileName);
+                            String value = read(path);
+                            sendToKafka(key, value, new LogFileRemover(path));
+                        }
+                    }
+                }
+                watchKey.reset();
+            }
         } catch (ClosedWatchServiceException e) {
-            System.out.println("System Shutdown.");
+            System.out.println("SYSTEM SHUTDOWN.");
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private void read()  {
+    private String read(Path path)  {
         try {
-            List<Path> paths = readFilePaths();
-            System.out.println(paths);
-            for(Path path: paths) {
-                String key = splitComponentName(getFileName(path));
-                String value = concatenate(key, Files.readAllLines(path));
-                sendToKafka(key, value, new LogFileRemover(path));
-            }
+            return concatenate(Files.readAllLines(path));
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.err.println("IOEXCEPTION IN LOG_FILE_READER.READ METHOD.");
+            return "";
         }
     }
 
@@ -76,21 +95,24 @@ public class LogFileReader implements Runnable{
 
     private String splitComponentName(String fileName) {
         int COMPONENT_NAME_LOCATION = 0;
-        return fileName.split("-")[COMPONENT_NAME_LOCATION];
+        return fileName.split("[-]")[COMPONENT_NAME_LOCATION];
     }
 
-    private String concatenate(String name, List<String> lines) {
-        String specialDelimiter = "$$";
-        StringBuilder result = new StringBuilder(name);
-
-        for(String line: lines)
-            result.append(specialDelimiter).append(line);
+    private String concatenate(List<String> lines) {
+        StringBuilder result = new StringBuilder();
+        if(lines.size() > 1) {
+            String SPECIAL_DELIMITER = "$$";
+            for (String line : lines)
+                result.append(line).append(SPECIAL_DELIMITER);
+        } else if(lines.size() == 1) {
+            result.append(lines.get(0));
+        }
 
         return result.toString();
     }
 
     private void sendToKafka(String key, String value, Callback callback) {
-        KafkaClient<String, String> kafkaClient = new KafkaClient<>();
-        kafkaClient.send(key, value, callback);
+        KafkaProducerClient<String, String> kafkaProducerClient = new KafkaProducerClient<>();
+        kafkaProducerClient.send(key, value, callback);
     }
 }

@@ -34,7 +34,7 @@ public class FileIngester {
             runLogFileReader(logFileReader);
             shutdownByUserCommand(logFileReader);
         } catch (IOException e) {
-            System.out.println("Log Folder Not Found!!");
+            System.out.println("LOG FOLDER NOT FOUND.");
         }
     }
 }

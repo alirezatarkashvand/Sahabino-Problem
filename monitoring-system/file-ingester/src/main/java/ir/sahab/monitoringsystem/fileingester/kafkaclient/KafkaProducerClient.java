@@ -11,7 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public class KafkaClient<K, V> {
+public class KafkaProducerClient<K, V> {
     //Initialize Log4j
     static {
         try {
@@ -25,7 +25,7 @@ public class KafkaClient<K, V> {
 
     private final Producer<K, V> producer;
 
-    public KafkaClient(){
+    public KafkaProducerClient(){
         Properties properties = new Properties();
         properties.put("bootstrap.servers", ApplicationProperties.getProperty("bootstrap.servers"));
         properties.put("acks", ApplicationProperties.getProperty("acks"));
