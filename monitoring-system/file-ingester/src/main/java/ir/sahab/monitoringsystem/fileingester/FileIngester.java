@@ -1,3 +1,8 @@
+package ir.sahab.monitoringsystem.fileingester;
+
+import ir.sahab.monitoringsystem.fileingester.config.ApplicationProperties;
+import ir.sahab.monitoringsystem.fileingester.logfilehandler.LogFileReader;
+
 import java.io.IOException;
 import java.util.Scanner;
 

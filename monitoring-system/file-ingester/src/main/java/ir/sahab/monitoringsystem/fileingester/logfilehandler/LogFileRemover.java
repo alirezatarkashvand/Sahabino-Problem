@@ -1,3 +1,5 @@
+package ir.sahab.monitoringsystem.fileingester.logfilehandler;
+
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
@@ -6,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class LogFileRemover implements Callback {
-    private Path logFilePath;
+    private final Path logFilePath;
 
     public LogFileRemover(Path logFilePath) {
         this.logFilePath = logFilePath;

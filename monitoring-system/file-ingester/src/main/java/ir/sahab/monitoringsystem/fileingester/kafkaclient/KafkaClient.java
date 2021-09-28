@@ -1,3 +1,6 @@
+package ir.sahab.monitoringsystem.fileingester.kafkaclient;
+
+import ir.sahab.monitoringsystem.fileingester.config.ApplicationProperties;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;

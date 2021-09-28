@@ -1,3 +1,7 @@
+package ir.sahab.monitoringsystem.fileingester.logfilehandler;
+
+import ir.sahab.monitoringsystem.fileingester.common.State;
+import ir.sahab.monitoringsystem.fileingester.kafkaclient.KafkaClient;
 import org.apache.kafka.clients.producer.Callback;
 
 import java.io.IOException;
@@ -76,7 +80,7 @@ public class LogFileReader implements Runnable{
     }
 
     private String concatenate(String name, List<String> lines) {
-        String specialDelimiter = "$$$";
+        String specialDelimiter = "$$";
         StringBuilder result = new StringBuilder(name);
 
         for(String line: lines)
