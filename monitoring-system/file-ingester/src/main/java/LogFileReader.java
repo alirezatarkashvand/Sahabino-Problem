@@ -54,7 +54,8 @@ public class LogFileReader {
             String fileName = getFileName(p);
             String componentName = splitComponentName(fileName);
             List<String> logs = Files.readAllLines(p);
-            System.out.println(componentName + " " + logs.get(0));
+            logs.add(componentName);
+            KafkaClient.send(componentName, componentName, new LogFileRemover(p));
         }
     }
 }
