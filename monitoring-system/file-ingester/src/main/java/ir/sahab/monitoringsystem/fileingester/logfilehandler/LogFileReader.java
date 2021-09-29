@@ -38,9 +38,9 @@ public class LogFileReader implements Runnable{
 
     private void readPreExistingFiles() {
         try {
-            for(Path path : readFilePaths()) {
+            for(Path path : readFilesPath()) {
                 String key = splitComponentName(getFileName(path));
-                String value = read(path);
+                String value = readFileContent(path);
                 sendToKafka(key, value, new LogFileRemover(path));
             }
 
@@ -60,7 +60,7 @@ public class LogFileReader implements Runnable{
                         if(fileName.endsWith(".log")) {
                             Path path = Paths.get(logFolderPath.toString(), fileName);
                             String key = splitComponentName(fileName);
-                            String value = read(path);
+                            String value = readFileContent(path);
                             sendToKafka(key, value, new LogFileRemover(path));
                         }
                     }
@@ -74,7 +74,7 @@ public class LogFileReader implements Runnable{
         }
     }
 
-    private String read(Path path)  {
+    private String readFileContent(Path path)  {
         try {
             return concatenate(Files.readAllLines(path));
         } catch (IOException e) {
@@ -83,7 +83,7 @@ public class LogFileReader implements Runnable{
         }
     }
 
-    private List<Path> readFilePaths() throws IOException {
+    private List<Path> readFilesPath() throws IOException {
         return Files.list(logFolderPath)
                     .filter(path -> path.toString().endsWith(".log"))
                     .collect(Collectors.toList());
