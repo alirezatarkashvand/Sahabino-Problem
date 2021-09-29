@@ -21,6 +21,7 @@ public class FileIngesterTest {
 
     private final int NUMBER_OF_RANDOM_LOG_FILES = Integer.parseInt(ApplicationProperties.getProperty("random.log.number"));
     private final int MAXIMUM_NUMBER_OF_LINES = Integer.parseInt(ApplicationProperties.getProperty("random.log.maximum.line.number"));
+    private final int NUMBER_OF_COMPONENTS = Integer.parseInt(ApplicationProperties.getProperty("random.log.component.number"));
 
     private final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
 
@@ -54,8 +55,6 @@ public class FileIngesterTest {
             createLogFile(logFileUri);
             fillLogFile(logFileUri);
         }
-
-
     }
 
     private void loadAvailableLogTypes() {
@@ -92,7 +91,7 @@ public class FileIngesterTest {
         String randomDate = randomLocalDate.toString().replace("-", "_");
         String randomTime = randomLocalTime.toString().replace(":", "_").split("[.]")[0];
 
-        return "NODE" + RANDOM.nextInt() + "-" + randomDate + "-" + randomTime + ".log";
+        return "NODE" + RANDOM.nextInt(NUMBER_OF_COMPONENTS) + "-" + randomDate + "-" + randomTime + ".log";
     }
 
     private void createLogFile(String logFileUri) {
@@ -110,6 +109,7 @@ public class FileIngesterTest {
             String randomMultipleLog = generateRandomMultipleLog();
             BufferedWriter bufferedWriter = Files.newBufferedWriter(logFilePath, StandardCharsets.UTF_16);
             bufferedWriter.write(randomMultipleLog);
+            bufferedWriter.close();
         } catch (IOException e) {
             System.err.println("IOEXCEPTION IN WRITE_MULTIPLE_LOGS_TO_FILES METHOD.");
         }
@@ -118,9 +118,10 @@ public class FileIngesterTest {
     private String generateRandomMultipleLog() {
         StringBuilder content = new StringBuilder();
 
-        for(int i = 0; i < MAXIMUM_NUMBER_OF_LINES; i++) {
+        int randomNumberOfLines = RANDOM.nextInt(MAXIMUM_NUMBER_OF_LINES);
+        for(int i = 0; i < randomNumberOfLines; i++) {
             String randomSingleLog = generateRandomSingleLog();
-            content.append(randomSingleLog).append("\n");
+            content.append(randomSingleLog);
         }
 
         return content.toString();
@@ -133,7 +134,7 @@ public class FileIngesterTest {
         String randomType = pickRandomType();
         String randomMessage = pickRandomMessage();
 
-        return randomLocalDate + " " + randomLocalTime + ",114 [TreadName] " + randomType + " package.name.ClassName - " + randomMessage;
+        return randomLocalDate + " " + randomLocalTime + ",114 [TreadName] " + randomType + " package.name.ClassName - " + randomMessage + "\n";
     }
 
     private LocalDate pickRandomDateBetween(LocalDate startInclusive, LocalDate endExclusive) {
