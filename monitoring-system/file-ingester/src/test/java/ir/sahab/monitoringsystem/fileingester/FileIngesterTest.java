@@ -1,6 +1,7 @@
 package ir.sahab.monitoringsystem.fileingester;
 
 import ir.sahab.monitoringsystem.fileingester.config.ApplicationProperties;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -78,7 +80,8 @@ public class FileIngesterTest {
     private void createTestDirectory() {
         try {
             Path testPath = Paths.get(TEST_DIRECTORY);
-            Files.createDirectory(testPath);
+            if(Files.notExists(testPath))
+                Files.createDirectory(testPath);
         } catch (IOException e) {
             System.err.println("IOEXCEPTION IN CREATE_TEST_DIRECTORY METHOD.");
         }

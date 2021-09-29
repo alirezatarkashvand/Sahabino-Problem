@@ -39,9 +39,9 @@ public class LogFileReader implements Runnable{
     private void readPreExistingFiles() {
         try {
             for(Path path : readFilesPath()) {
-                String key = splitComponentName(getFileName(path));
-                String value = readFileContent(path);
-                sendToKafka(key, value, new LogFileRemover(path));
+                String fileName = getFileName(path);
+                String content = readFileContent(path);
+                sendToKafka(fileName, content, new LogFileRemover(path));
             }
 
         } catch (IOException e) {
@@ -59,9 +59,8 @@ public class LogFileReader implements Runnable{
                         String fileName = event.context().toString();
                         if(fileName.endsWith(".log")) {
                             Path path = Paths.get(logFolderPath.toString(), fileName);
-                            String key = splitComponentName(fileName);
-                            String value = readFileContent(path);
-                            sendToKafka(key, value, new LogFileRemover(path));
+                            String content = readFileContent(path);
+                            sendToKafka(fileName, content, new LogFileRemover(path));
                         }
                     }
                 }
@@ -91,11 +90,6 @@ public class LogFileReader implements Runnable{
 
     private String getFileName(Path path) {
         return path.getFileName().toString();
-    }
-
-    private String splitComponentName(String fileName) {
-        int COMPONENT_NAME_LOCATION = 0;
-        return fileName.split("[-]")[COMPONENT_NAME_LOCATION];
     }
 
     private String concatenate(List<String> lines) {
