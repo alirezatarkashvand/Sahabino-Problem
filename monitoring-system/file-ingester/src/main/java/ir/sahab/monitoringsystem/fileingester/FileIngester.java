@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class FileIngester {
 
     private static LogFileReader instantiateLogFileReader() throws IOException {
-        String logFolder = ApplicationProperties.getProperty("log-folder");
+        String logFolder = ApplicationProperties.getProperty("test.directory");
         return new LogFileReader(logFolder);
     }
 

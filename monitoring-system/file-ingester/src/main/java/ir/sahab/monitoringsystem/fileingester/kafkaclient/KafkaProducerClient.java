@@ -37,7 +37,7 @@ public class KafkaProducerClient<K, V> {
     }
 
     public void send(K key, V value, Callback callback) {
-        ProducerRecord<K, V> record = new ProducerRecord<>(ApplicationProperties.getProperty("topic-name"), key, value);
+        ProducerRecord<K, V> record = new ProducerRecord<>(ApplicationProperties.getProperty("topic.name"), key, value);
         producer.send(record, callback);
     }
 }
