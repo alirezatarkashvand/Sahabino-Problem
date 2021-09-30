@@ -2,14 +2,12 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.log4j.PropertyConfigurator;
+import org.javatuples.Pair;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class KafkaConsumerClient<K, V> {
     //Initialize Log4j
@@ -38,10 +36,12 @@ public class KafkaConsumerClient<K, V> {
         this.consumer.subscribe(List.of(ApplicationProperties.getProperty("topic.name")));
     }
 
-    public Map<K, V> receive() {
-        Map<K, V> recordsHashMap = new HashMap<>();
-        ConsumerRecords<K, V> records = consumer.poll(Duration.ofSeconds(10));
-        records.forEach(record -> recordsHashMap.put(record.key(), record.value()));
-        return recordsHashMap;
+    public List<Pair<K, V>> receive() {
+        List<Pair<K, V>> recordsList = new ArrayList<>();
+
+        ConsumerRecords<K, V> records = consumer.poll(Duration.ofSeconds(1));
+        records.forEach(record -> recordsList.add(new Pair<>(record.key(), record.value())));
+
+        return recordsList;
     }
 }
