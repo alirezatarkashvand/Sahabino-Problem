@@ -1,5 +1,4 @@
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.log4j.PropertyConfigurator;
@@ -43,8 +42,6 @@ public class KafkaConsumerClient<K, V> {
         Map<K, V> recordsHashMap = new HashMap<>();
         ConsumerRecords<K, V> records = consumer.poll(Duration.ofSeconds(10));
         records.forEach(record -> recordsHashMap.put(record.key(), record.value()));
-        for(ConsumerRecord<K, V> record:records)
-            System.out.println(record.value());
         return recordsHashMap;
     }
 }
