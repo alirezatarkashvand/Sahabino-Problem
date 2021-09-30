@@ -2,14 +2,13 @@ package ir.sahab.monitoringsystem.fileingester.kafkaclient;
 
 import ir.sahab.monitoringsystem.fileingester.config.ApplicationProperties;
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.javatuples.Pair;
 
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class KafkaConsumerClient<K, V> {
@@ -18,6 +17,7 @@ public class KafkaConsumerClient<K, V> {
 
     public KafkaConsumerClient() {
         Properties properties = new Properties();
+        properties.put("bootstrap.servers", ApplicationProperties.getProperty("bootstrap.servers"));
         properties.put("group.id", ApplicationProperties.getProperty("group.id"));
         properties.put("enable.auto.commit", ApplicationProperties.getProperty("enable.auto.commit"));
         properties.put("auto.commit.interval.ms", ApplicationProperties.getProperty("auto.commit.interval.ms"));
@@ -28,16 +28,10 @@ public class KafkaConsumerClient<K, V> {
         this.consumer.subscribe(List.of(ApplicationProperties.getProperty("topic.name")));
     }
 
-    public List<Pair<K, V>> receive() {
-        List<Pair<K, V>> recordsList = new ArrayList<>();
-
-        ConsumerRecords<K, V> records = consumer.poll(Duration.ofMinutes(1));
-
-        for(ConsumerRecord<K, V> record : records) {
-            Pair<K, V> keyValuePair = new Pair<>(record.key(), record.value());
-            recordsList.add(keyValuePair);
-        }
-
-        return recordsList;
+    public Map<K, V> receive() {
+        Map<K, V> recordsHashMap = new HashMap<>();
+        ConsumerRecords<K, V> records = consumer.poll(Duration.ofSeconds(10));
+        records.forEach(record -> recordsHashMap.put(record.key(), record.value()));
+        return recordsHashMap;
     }
 }

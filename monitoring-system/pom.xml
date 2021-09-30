@@ -12,6 +12,7 @@
         <module>file-ingester</module>
         <module>rules-evaluator</module>
         <module>backend</module>
+        <module>log-generator</module>
     </modules>
 
     <properties>
@@ -21,7 +22,6 @@
         <slf4j.version>1.7.32</slf4j.version>
         <juint-jupiter.version>5.8.1</juint-jupiter.version>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.kafka</groupId>
@@ -50,12 +50,6 @@
             <version>${juint-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.javatuples</groupId>
-            <artifactId>javatuples</artifactId>
-            <version>1.2</version>
-        </dependency>
-
     </dependencies>
 
 </project>

@@ -40,8 +40,8 @@ public class LogFileReader implements Runnable{
         try {
             for(Path path : readFilesPath()) {
                 String fileName = getFileName(path);
-                String content = readFileContent(path);
-                sendToKafka(fileName, content, new LogFileRemover(path));
+                String fileContent = readFileContent(path);
+                sendToKafka(fileName, fileContent, new LogFileRemover(path));
             }
 
         } catch (IOException e) {
@@ -59,8 +59,8 @@ public class LogFileReader implements Runnable{
                         String fileName = event.context().toString();
                         if(fileName.endsWith(".log")) {
                             Path path = Paths.get(logFolderPath.toString(), fileName);
-                            String content = readFileContent(path);
-                            sendToKafka(fileName, content, new LogFileRemover(path));
+                            String fileContent = readFileContent(path);
+                            sendToKafka(fileName, fileContent, new LogFileRemover(path));
                         }
                     }
                 }
@@ -77,7 +77,7 @@ public class LogFileReader implements Runnable{
         try {
             return concatenate(Files.readAllLines(path));
         } catch (IOException e) {
-            System.err.println("IOEXCEPTION IN LOG_FILE_READER.READ METHOD.");
+            System.err.println("IOEXCEPTION IN LOG_FILE_READER.READ_FILE_CONTENT METHOD.");
             return "";
         }
     }
