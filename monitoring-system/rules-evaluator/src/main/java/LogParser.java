@@ -38,8 +38,9 @@ public class LogParser {
         return fileContent.split("[$][$]");
     }
 
+
     private static LogData parseSingleLog(String log) {
-        Pattern pattern = Pattern.compile("([\\d+]{4})-([\\d+]{2})-([\\d+]{2})\\s([\\d+]{2}):([\\d+]{2}):([\\d+]{2}),\\d+\\s\\[\\w+]\\s([A-z]+)\\s[\\w.]+\\s-\\s(.*)");
+        Pattern pattern = Pattern.compile("([\\d]{4})-([\\d]{2})-([\\d]{2})\\s([\\d]{2}):([\\d]{2}):?([\\d]{2})?,\\d+\\s\\[\\w+]\\s([A-z]+)\\s[\\w.]+\\s-\\s(.*)");
         Matcher matcher = pattern.matcher(log);
 
         LogData logData = new LogData();
@@ -49,7 +50,7 @@ public class LogParser {
             int day = Integer.parseInt(matcher.group(3));
             int hour = Integer.parseInt(matcher.group(4));
             int minute = Integer.parseInt(matcher.group(5));
-            int second = Integer.parseInt(matcher.group(6));
+            int second = Integer.parseInt(matcher.group(6) != null ? matcher.group(6) : "0");
             String type = matcher.group(7);
             String message = matcher.group(8);
 

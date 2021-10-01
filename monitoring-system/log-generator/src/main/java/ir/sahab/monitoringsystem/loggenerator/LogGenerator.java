@@ -20,7 +20,7 @@ public class LogGenerator {
     private static final String TEST_DIRECTORY = ApplicationProperties.getProperty("test.directory");
 
     private static final int NUMBER_OF_RANDOM_LOG_FILES = Integer.parseInt(ApplicationProperties.getProperty("random.log.number"));
-    private static final int MAXIMUM_NUMBER_OF_LINES = Integer.parseInt(ApplicationProperties.getProperty("random.log.maximum.line.number"));
+    private static final int NUMBER_OF_LINES = Integer.parseInt(ApplicationProperties.getProperty("random.log.line.number"));
     private static final int NUMBER_OF_COMPONENTS = Integer.parseInt(ApplicationProperties.getProperty("random.log.component.number"));
 
     private static final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
@@ -120,8 +120,7 @@ public class LogGenerator {
     private static String generateRandomNumberOfLogs() {
         StringBuilder content = new StringBuilder();
 
-        int randomNumberOfLines = RANDOM.nextInt(MAXIMUM_NUMBER_OF_LINES);
-        for(int i = 0; i < randomNumberOfLines; i++) {
+        for(int i = 0; i < NUMBER_OF_LINES; i++) {
             String randomSingleLog = generateRandomSingleLog();
             content.append(randomSingleLog);
         }

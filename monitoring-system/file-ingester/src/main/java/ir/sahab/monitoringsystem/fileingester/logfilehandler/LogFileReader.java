@@ -2,7 +2,6 @@ package ir.sahab.monitoringsystem.fileingester.logfilehandler;
 
 import ir.sahab.monitoringsystem.fileingester.common.State;
 import ir.sahab.monitoringsystem.fileingester.kafkaclient.KafkaProducerClient;
-import org.apache.kafka.clients.producer.Callback;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -24,6 +23,7 @@ public class LogFileReader implements Runnable{
     public void stop() {
         try {
             this.state = State.SHUTDOWN;
+            KafkaProducerClient.close();
             this.watchService.close();
         } catch (IOException e) {
             System.err.println("IOEXCEPTION IN LOG_FILE_READER.STOP METHOD.");
@@ -41,9 +41,8 @@ public class LogFileReader implements Runnable{
             for(Path path : readFilesPath()) {
                 String fileName = getFileName(path);
                 String fileContent = readFileContent(path);
-                sendToKafka(fileName, fileContent, new LogFileRemover(path));
+                KafkaProducerClient.send(fileName, fileContent, new LogFileRemover(path));
             }
-
         } catch (IOException e) {
             System.err.println("IOEXCEPTION IN LOG_FILE_READER.READ_PRE_EXISTING_FILES METHOD.");
         }
@@ -60,7 +59,7 @@ public class LogFileReader implements Runnable{
                         if(fileName.endsWith(".log")) {
                             Path path = Paths.get(logFolderPath.toString(), fileName);
                             String fileContent = readFileContent(path);
-                            sendToKafka(fileName, fileContent, new LogFileRemover(path));
+                            KafkaProducerClient.send(fileName, fileContent, new LogFileRemover(path));
                         }
                     }
                 }
@@ -103,10 +102,5 @@ public class LogFileReader implements Runnable{
         }
 
         return result.toString();
-    }
-
-    private void sendToKafka(String key, String value, Callback callback) {
-        KafkaProducerClient<String, String> kafkaProducerClient = new KafkaProducerClient<>();
-        kafkaProducerClient.send(key, value, callback);
     }
 }

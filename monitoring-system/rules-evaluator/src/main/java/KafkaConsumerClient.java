@@ -9,21 +9,21 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
 
-public class KafkaConsumerClient<K, V> {
+public class KafkaConsumerClient {
     //Initialize Log4j
     static {
         try {
             Properties properties = new Properties();
-            properties.load(new FileInputStream("/home/alireza/Sahabino-Problem/monitoring-system/file-ingester/src/main/resources/log4j.properties"));
+            properties.load(new FileInputStream("/home/alireza/Sahabino-Problem/monitoring-system/rules-evaluator/src/main/resources/log4j.properties"));
             PropertyConfigurator.configure(properties);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private final Consumer<K, V> consumer;
+    private static Consumer<String, String> consumer;
 
-    public KafkaConsumerClient() {
+    static {
         Properties properties = new Properties();
         properties.put("bootstrap.servers", ApplicationProperties.getProperty("bootstrap.servers"));
         properties.put("group.id", ApplicationProperties.getProperty("group.id"));
@@ -32,16 +32,20 @@ public class KafkaConsumerClient<K, V> {
         properties.put("session.timeout.ms", ApplicationProperties.getProperty("session.timeout.ms"));
         properties.put("key.deserializer", ApplicationProperties.getProperty("key.deserializer"));
         properties.put("value.deserializer", ApplicationProperties.getProperty("value.deserializer"));
-        this.consumer = new KafkaConsumer<>(properties);
-        this.consumer.subscribe(List.of(ApplicationProperties.getProperty("topic.name")));
+        consumer = new KafkaConsumer<>(properties);
+        consumer.subscribe(List.of(ApplicationProperties.getProperty("topic.name")));
     }
 
-    public List<Pair<K, V>> receive() {
-        List<Pair<K, V>> recordsList = new ArrayList<>();
+    public static List<Pair<String, String>> receive() {
+        List<Pair<String, String>> recordsList = new ArrayList<>();
 
-        ConsumerRecords<K, V> records = consumer.poll(Duration.ofSeconds(1));
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(20));
         records.forEach(record -> recordsList.add(new Pair<>(record.key(), record.value())));
 
         return recordsList;
+    }
+
+    public static void close() {
+        consumer.close();
     }
 }

@@ -2,21 +2,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class Warning {
-    private final String ruleName;
-    private final String componentName;
-    private final String type;
-    private final String message;
-    private final String date;
-    private final String time;
-
-    public Warning(String ruleName, String componentName, String type, String message, String date, String time) {
-        this.ruleName = ruleName;
-        this.componentName = componentName;
-        this.type = type;
-        this.message = message;
-        this.date = date;
-        this.time = time;
-    }
+    private String ruleName;
+    private String componentName;
+    private String type;
+    private String message;
+    private LocalDate date;
+    private LocalTime time;
 
     public String getRuleName() {
         return ruleName;
@@ -35,10 +26,34 @@ public class Warning {
     }
 
     public String getDate() {
-        return date;
+        return date.toString();
     }
 
     public String getTime() {
-        return time;
+        return time.toString().split("[\\.]")[0];
+    }
+
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
+    }
+
+    public void setComponentName(String componentName) {
+        this.componentName = componentName;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
     }
 }
