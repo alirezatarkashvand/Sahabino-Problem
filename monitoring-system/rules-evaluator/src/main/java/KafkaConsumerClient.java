@@ -21,7 +21,7 @@ public class KafkaConsumerClient {
         }
     }
 
-    private static Consumer<String, String> consumer;
+    private static final Consumer<String, String> consumer;
 
     static {
         Properties properties = new Properties();

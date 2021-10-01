@@ -34,7 +34,6 @@ public class Analyzer {
     }
 
     private static boolean checkThirdRule() {
-
         return false;
     }
 }
