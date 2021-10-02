@@ -1,7 +1,9 @@
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 
-public class LogData {
+public class LogData implements Comparable<LogData> {
     private String componentName;
     private String type;
     private String message;
@@ -46,5 +48,16 @@ public class LogData {
 
     public void setTime(LocalTime time) {
         this.time = time;
+    }
+
+    public long getEpochSeconds() {
+        return LocalDateTime.of(this.date, this.time).toEpochSecond(ZoneOffset.UTC);
+    }
+
+    @Override
+    public int compareTo(LogData other) {
+        long mySeconds = this.getEpochSeconds();
+        long otherSeconds = other.getEpochSeconds();
+        return Long.compare(mySeconds, otherSeconds);
     }
 }
