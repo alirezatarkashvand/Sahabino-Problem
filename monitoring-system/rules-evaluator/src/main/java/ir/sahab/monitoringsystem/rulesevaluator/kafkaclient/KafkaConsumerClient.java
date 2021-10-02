@@ -1,3 +1,6 @@
+package ir.sahab.monitoringsystem.rulesevaluator.kafkaclient;
+
+import ir.sahab.monitoringsystem.rulesevaluator.config.ApplicationProperties;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;

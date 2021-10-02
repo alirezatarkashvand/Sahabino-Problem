@@ -1,3 +1,6 @@
+package ir.sahab.monitoringsystem.rulesevaluator;
+
+import ir.sahab.monitoringsystem.rulesevaluator.common.LogData;
 import org.javatuples.Pair;
 
 import java.time.LocalDate;

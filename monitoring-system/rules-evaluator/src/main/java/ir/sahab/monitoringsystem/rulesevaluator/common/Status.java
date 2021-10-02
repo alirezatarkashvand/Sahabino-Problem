@@ -1,3 +1,5 @@
+package ir.sahab.monitoringsystem.rulesevaluator.common;
+
 public class Status {
     private boolean violated;
     private int begin;

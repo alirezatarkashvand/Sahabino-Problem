@@ -1,3 +1,6 @@
+package ir.sahab.monitoringsystem.rulesevaluator;
+
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class RulesEvaluator {
